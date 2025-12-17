@@ -1,0 +1,13 @@
+all:
+  children:
+    webservers:
+      hosts:
+        dev-web:
+          ansible_host: localhost
+          ansible_connection: local
+          environment: development
+          
+        prod-web:
+          ansible_host: 10.0.81.29  # Ubuntu 2
+          ansible_user: ansible
+          environment: production

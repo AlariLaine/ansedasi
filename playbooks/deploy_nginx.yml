@@ -1,0 +1,53 @@
+---
+- name: Deploy Nginx with templates
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+    
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+      notify: start nginx
+    
+    - name: Deploy nginx configuration from template
+      template:
+        src: ../templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+      notify: reload nginx
+    
+    - name: Deploy website from template
+      template:
+        src: ../templates/index.html.j2
+        dest: "{{ nginx_root }}/index.html"
+        owner: "{{ nginx_user }}"
+        group: "{{ nginx_user }}"
+        mode: '0644'
+    
+    - name: Ensure nginx is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+  
+  handlers:
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+    
+    - name: reload nginx
+      service:
+        name: nginx
+        state: reloaded

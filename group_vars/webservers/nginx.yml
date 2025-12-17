@@ -1,0 +1,7 @@
+---
+# Nginx seaded veebiserveri jaoks
+nginx_port: 80
+nginx_root: "/var/www/html"
+
+# Dünaamiline worker'ite arv CPU järgi
+nginx_workers: "{{ ansible_processor_vcpus | default(2) }}"

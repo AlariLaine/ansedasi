@@ -1,0 +1,8 @@
+---
+# Rakenduse põhiinfo
+app_name: "ansible-demo"
+admin_email: "admin@example.com"
+
+# Nginx põhiseaded
+nginx_user: "www-data"
+nginx_worker_connections: 1024

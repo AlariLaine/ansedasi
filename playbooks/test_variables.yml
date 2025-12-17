@@ -1,0 +1,16 @@
+---
+- name: Test variable hierarchy
+  hosts: webservers
+  gather_facts: yes
+  
+  tasks:
+    - name: Display all variables
+      debug:
+        msg: |
+          App: {{ app_name }}
+          Email: {{ admin_email }}
+          Server: {{ server_name }}
+          Debug: {{ debug_mode }}
+          Workers: {{ nginx_workers }}
+          Max Conn: {{ max_connections }}
+          Color: {{ site_color }}

@@ -1,0 +1,5 @@
+---
+server_name: "dev.example.local"
+debug_mode: true
+max_connections: 100
+site_color: "#FFA500"  # Orange
