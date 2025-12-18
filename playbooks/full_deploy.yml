@@ -1,26 +1,47 @@
 ---
-- name: Deploy Nginx with templates
+- name: Full deployment with all advanced features
   hosts: webservers
   become: yes
   gather_facts: yes
   
+  pre_tasks:
+    - name: Display deployment info
+      debug:
+        msg: |
+          Deploying to: {{ inventory_hostname }}
+          Environment: {{ environment }}
+          Server: {{ server_name }}
+          Debug mode: {{ debug_mode }}
+  
   tasks:
+    # Package management
     - name: Update apt cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
       when: ansible_os_family == "Debian"
     
-    - name: Install nginx
+    - name: Install required packages
       apt:
-        name: nginx
+        name:
+          - nginx
+          - python3-passlib
         state: present
       notify: start nginx
-    - name: Install python3-passlib for htpasswd module
-      apt:
-        name: python3-passlib
-        state: present
     
+    # Nginx configuration
+    - name: Deploy nginx configuration from template
+      template:
+        src: ../templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+        validate: 'nginx -t -c %s'
+      notify: reload nginx
+    
+    # Security (production only)
     - name: Create htpasswd file for production
       community.general.htpasswd:
         path: /etc/nginx/.htpasswd
@@ -32,16 +53,7 @@
       when: not debug_mode
       notify: reload nginx
     
-    - name: Deploy nginx configuration from template
-      template:
-        src: ../templates/nginx.conf.j2
-        dest: /etc/nginx/nginx.conf
-        owner: root
-        group: root
-        mode: '0644'
-        backup: yes
-      notify: reload nginx
-    
+    # Website deployment
     - name: Deploy website from template
       template:
         src: ../templates/index.html.j2
@@ -50,6 +62,7 @@
         group: "{{ nginx_user }}"
         mode: '0644'
     
+    # Service management
     - name: Ensure nginx is started and enabled
       service:
         name: nginx
@@ -66,3 +79,15 @@
       service:
         name: nginx
         state: reloaded
+  
+  post_tasks:
+    - name: Verify nginx is running
+      service:
+        name: nginx
+        state: started
+      check_mode: yes
+      register: nginx_status
+    
+    - name: Display deployment result
+      debug:
+        msg: "Deployment successful! Visit http://{{ ansible_host if ansible_host != 'localhost' else '10.0.81.28' }}"

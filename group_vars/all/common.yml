@@ -5,4 +5,11 @@ admin_email: "admin@example.com"
 
 # Nginx põhiseaded
 nginx_user: "www-data"
-nginx_worker_connections: 1024
+nginx_worker_connections: 2048
+
+# Reference vault variables
+db_password: "{{ vault_db_password }}"
+db_user: "{{ vault_db_user }}"
+admin_password: "{{ vault_admin_password }}"
+admin_email: "{{ vault_admin_email }}"
+api_key: "{{ vault_api_key }}"

@@ -1,0 +1,14 @@
+---
+- name: Test Vault variables
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+  tasks:
+    - name: Show that we can access vault variables
+      debug:
+        msg: |
+          DB User: {{ db_user }}
+          DB Password: {{ db_password }}
+          Admin Email: {{ admin_email }}
+          API Key: {{ api_key }}
