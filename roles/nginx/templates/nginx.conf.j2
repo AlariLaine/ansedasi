@@ -1,0 +1,57 @@
+# {{ ansible_managed }}
+# Nginx configuration for {{ server_name }}
+
+user {{ nginx_user }};
+worker_processes {{ nginx_workers }};
+pid /run/nginx.pid;
+
+events {
+    worker_connections {{ nginx_worker_connections }};
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Logging
+    {% if debug_mode %}
+    # Development - verbose logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log debug;
+    {% else %}
+    # Production - minimal logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log warn;
+    {% endif %}
+
+    # Gzip
+    gzip on;
+
+    # Server block
+    server {
+        listen {{ nginx_port }};
+        server_name {{ server_name }};
+        root {{ nginx_root }};
+        index index.html;
+	        # Basic auth for production
+        {% if not debug_mode %}
+        auth_basic "Restricted Access";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        {% endif %}
+        location / {
+            try_files $uri $uri/ =404;
+        }
+
+        # Security headers (production only)
+        {% if not debug_mode %}
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        {% endif %}
+    }
+}

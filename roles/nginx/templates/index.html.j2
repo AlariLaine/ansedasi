@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - {{ environment | upper }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: {{ site_color }};
+            color: white;
+            padding: 50px;
+            text-align: center;
+        }
+        .container {
+            background: rgba(0,0,0,0.3);
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info {
+            background: rgba(10, 255, 235, 0.86);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ app_name | upper }}</h1>
+        <h2>Environment: {{ environment | upper }}</h2>
+        
+        <div class="info">
+            <h3>Server Information</h3>
+            <p><strong>Hostname:</strong> {{ ansible_hostname }}</p>
+            <p><strong>Server Name:</strong> {{ server_name }}</p>
+            <p><strong>OS:</strong> {{ ansible_distribution }} {{ ansible_distribution_version }}</p>
+        </div>
+
+        <div class="info">
+            <h3>Nginx Configuration</h3>
+            <p><strong>Workers:</strong> {{ nginx_workers }}</p>
+            <p><strong>Port:</strong> {{ nginx_port }}</p>
+            <p><strong>Max Connections:</strong> {{ max_connections }}</p>
+            <p><strong>Debug Mode:</strong> {{ debug_mode }}</p>
+        </div>
+
+        {% if debug_mode %}
+        <div class="info">
+            <h3>Debug Information</h3>
+            <p><strong>Admin:</strong> {{ admin_email }}</p>
+            <p><strong>Memory:</strong> {{ ansible_memtotal_mb }} MB</p>
+            <p><strong>CPU Cores:</strong> {{ ansible_processor_vcpus }}</p>
+            <p><strong>Generated:</strong> {{ ansible_date_time.iso8601 }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
